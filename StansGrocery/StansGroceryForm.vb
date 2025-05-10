@@ -14,6 +14,7 @@ Public Class StansGroceryForm
     ' Declaring vaialbles for global data storage 
     Dim food$(,) : Dim fileName As String = "Grocery.txt"
     Dim splashScreen As SplashScreenForm
+    Private toolTips As ToolTip
 
     Private Sub StansGroceryForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' Center the form on the screen
@@ -48,6 +49,9 @@ Public Class StansGroceryForm
         ' Close splash screen
         splashScreen.Close() ' Close the splash screen
         splashScreen.Dispose() ' Dispose of the splash screen to free up resources
+
+        ' Set the form's properties
+        SetupToolTips()
     End Sub
 
     Private Sub StansGroceryForm_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
@@ -57,6 +61,26 @@ Public Class StansGroceryForm
             splashScreen.Dispose() ' Dispose of the splash screen to free up resources
         End If
     End Sub
+
+    Private Sub SetupToolTips()
+        toolTips = New ToolTip()
+
+        ' Optional: Configure delay settings
+        toolTips.AutoPopDelay = 5000
+        toolTips.InitialDelay = 500
+        toolTips.ReshowDelay = 200
+        toolTips.ShowAlways = True
+
+        ' Assign tooltips to controls
+        toolTips.SetToolTip(SearchTextBox, "Type a keyword to search (e.g. napkins, dairy, 14)")
+        toolTips.SetToolTip(SearchButton, "Click to search for matching grocery items")
+        toolTips.SetToolTip(DisplayListBox, "Matching grocery items will be shown here")
+        toolTips.SetToolTip(FilterComboBox, "Select a category or aisle to filter results")
+        toolTips.SetToolTip(FilterByAisleRadioButton, "Filter items by aisle")
+        toolTips.SetToolTip(FilterByCategoryRadioButton, "Filter items by category")
+        toolTips.SetToolTip(DisplayLabel, "Displays location details for selected item")
+    End Sub
+
 
     Sub LoadGroceryData() 'loads the grocery data from the file
         Try
