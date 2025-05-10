@@ -1,4 +1,10 @@
-﻿Option Strict On
+﻿'ChristopherZ
+'Spring 2025
+'RCET2265
+'Stans Grocery Store
+'https://github.com/Christopher-isu/StansGrocery.git
+
+Option Strict On
 Option Explicit On
 
 Imports System.IO
@@ -33,7 +39,7 @@ Public Class StansGroceryForm
         ' Proceed with loading main form data
         LoadGroceryData()
         PopulateFilterComboBox()
-        PopulateDisplayListBox()
+        PopulateDisplayListBox(SearchTextBox.Text) ' Pass the empty text box string initially
         FilterByAisleRadioButton.Checked = True
         FilterComboBox.SelectedIndex = 0
         SearchTextBox.Text = ""
@@ -94,12 +100,12 @@ Public Class StansGroceryForm
                 For i = 0 To food.GetUpperBound(0)
                     If Not values.Contains(food(i, 1)) Then values.Add(food(i, 1))
                 Next
-                values.Sort(Function(x, y) y.CompareTo(x))
+                values.Sort(Function(x, y) y.CompareTo(x)) ' Sort aisles in descending order
             ElseIf FilterByCategoryRadioButton.Checked Then
                 For i = 0 To food.GetUpperBound(0)
                     If Not values.Contains(food(i, 2)) Then values.Add(food(i, 2))
                 Next
-                values.Sort()
+                values.Sort() ' Sort categories in alphabetical order
             End If
 
             For Each value In values
@@ -112,7 +118,7 @@ Public Class StansGroceryForm
         End Try
     End Sub
 
-    Sub PopulateDisplayListBox()
+    Sub PopulateDisplayListBox(searchString As String)
         Try
             If food Is Nothing OrElse FilterComboBox.SelectedItem Is Nothing Then Exit Sub
 
@@ -131,12 +137,15 @@ Public Class StansGroceryForm
                     includeItem = True
                 End If
 
-                If includeItem AndAlso Not filteredItems.Contains(food(i, 0)) Then
+                If includeItem AndAlso (food(i, 0).IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 _
+                    OrElse food(i, 1).IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 _
+                    OrElse food(i, 2).IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0) _
+                    AndAlso Not filteredItems.Contains(food(i, 0)) Then
                     filteredItems.Add(food(i, 0))
                 End If
             Next
 
-            filteredItems.Sort()
+            filteredItems.Sort() ' Sort the filtered list alphabetically
             For Each item In filteredItems
                 DisplayListBox.Items.Add(item)
             Next
@@ -147,11 +156,11 @@ Public Class StansGroceryForm
 
     Private Sub FilterChanged(sender As Object, e As EventArgs) Handles FilterByAisleRadioButton.CheckedChanged, FilterByCategoryRadioButton.CheckedChanged
         PopulateFilterComboBox()
-        PopulateDisplayListBox()
+        PopulateDisplayListBox(SearchTextBox.Text) ' Pass the current search text
     End Sub
 
     Private Sub FilterComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles FilterComboBox.SelectedIndexChanged
-        PopulateDisplayListBox()
+        PopulateDisplayListBox(SearchTextBox.Text) ' Pass the current search text
     End Sub
 
     Private Sub DisplayListBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DisplayListBox.SelectedIndexChanged
@@ -198,37 +207,39 @@ Public Class StansGroceryForm
                         DisplayListBox.Items.Add(food(i, 0))
                     End If
 
+                    ' Add filter values based on aisle or category
                     If FilterByAisleRadioButton.Checked Then
-                        filterValues.Add(food(i, 1))
+                        filterValues.Add(food(i, 1)) ' Aisle filter
                     ElseIf FilterByCategoryRadioButton.Checked Then
-                        filterValues.Add(food(i, 2))
+                        filterValues.Add(food(i, 2)) ' Category filter
                     End If
                 End If
             Next
 
-            ' Update the FilterComboBox with matched values only
-            Dim sortedValues = filterValues.ToList()
-            If FilterByAisleRadioButton.Checked Then
-                sortedValues.Sort(Function(x, y) y.CompareTo(x))
-            Else
-                sortedValues.Sort()
-            End If
-
-            For Each value In sortedValues
-                FilterComboBox.Items.Add(value)
-            Next
-
-            FilterComboBox.SelectedIndex = 0
-
+            ' If no items were found, inform the user
             If foundItems.Count = 0 Then
-                DisplayLabel.Text = $"Sorry no matches for {searchString}"
+                DisplayLabel.Text = $"Sorry no matches for '{searchString}'"
             Else
                 DisplayLabel.Text = ""
             End If
 
-            FilterByAisleRadioButton.Checked = True
-            PopulateFilterComboBox()
+            ' Update the FilterComboBox based on the results
+            Dim sortedFilterValues = filterValues.ToList()
+
+            If FilterByAisleRadioButton.Checked Then
+                sortedFilterValues.Sort(Function(x, y) y.CompareTo(x)) ' Sort aisle in descending order
+            Else
+                sortedFilterValues.Sort() ' Sort category in ascending order
+            End If
+
+            For Each value In sortedFilterValues
+                FilterComboBox.Items.Add(value)
+            Next
+
+            ' Reset filter combo box and radio button state
             FilterComboBox.SelectedIndex = 0
+            FilterByAisleRadioButton.Checked = True
+
         Catch ex As Exception
             MsgBox("Error searching items: " & ex.Message)
         End Try
