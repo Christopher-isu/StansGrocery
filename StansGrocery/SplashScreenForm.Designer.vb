@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class AboutForm
+Partial Class SplashScreenForm
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -22,44 +22,33 @@ Partial Class AboutForm
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.AboutLabel = New System.Windows.Forms.Label()
-        Me.okButton = New System.Windows.Forms.Button()
+        Me.SplashLabel = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
-        'AboutLabel
+        'SplashLabel
         '
-        Me.AboutLabel.AutoSize = True
-        Me.AboutLabel.Location = New System.Drawing.Point(45, 92)
-        Me.AboutLabel.Name = "AboutLabel"
-        Me.AboutLabel.Size = New System.Drawing.Size(42, 16)
-        Me.AboutLabel.TabIndex = 0
-        Me.AboutLabel.Text = "About"
+        Me.SplashLabel.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.SplashLabel.AutoSize = True
+        Me.SplashLabel.Location = New System.Drawing.Point(42, 133)
+        Me.SplashLabel.Name = "SplashLabel"
+        Me.SplashLabel.Size = New System.Drawing.Size(32, 16)
+        Me.SplashLabel.TabIndex = 0
+        Me.SplashLabel.Text = "Intro"
         '
-        'okButton
-        '
-        Me.okButton.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.okButton.Location = New System.Drawing.Point(0, 277)
-        Me.okButton.Name = "okButton"
-        Me.okButton.Size = New System.Drawing.Size(250, 23)
-        Me.okButton.TabIndex = 1
-        Me.okButton.Text = "&Close"
-        Me.okButton.UseVisualStyleBackColor = True
-        '
-        'AboutForm
+        'SplashScreenForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(250, 300)
-        Me.Controls.Add(Me.okButton)
-        Me.Controls.Add(Me.AboutLabel)
+        Me.ClientSize = New System.Drawing.Size(332, 353)
+        Me.Controls.Add(Me.SplashLabel)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
-        Me.Name = "AboutForm"
-        Me.Text = "About"
+        Me.Name = "SplashScreenForm"
+        Me.Text = "Intro"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
-    Friend WithEvents AboutLabel As Label
-    Friend WithEvents okButton As Button
+    Friend WithEvents SplashLabel As Label
 End Class

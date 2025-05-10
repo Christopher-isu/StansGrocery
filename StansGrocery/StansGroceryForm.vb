@@ -7,14 +7,47 @@ Public Class StansGroceryForm
 
     ' Global data storage
     Dim food$(,) : Dim fileName As String = "Grocery.txt"
+    Dim splashScreen As SplashScreenForm
 
     Private Sub StansGroceryForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' Center the form on the screen
+        Dim screenWidth As Integer = Screen.PrimaryScreen.WorkingArea.Width
+        Dim screenHeight As Integer = Screen.PrimaryScreen.WorkingArea.Height
+        Dim formWidth As Integer = Me.Width
+        Dim formHeight As Integer = Me.Height
+        Me.Location = New Point((screenWidth - formWidth) \ 2, (screenHeight - formHeight) \ 2)
+
+        ' Show splash screen
+        splashScreen = New SplashScreenForm()
+        splashScreen.Show()
+        splashScreen.Refresh()
+        Application.DoEvents() ' Allow splash to render and timers to start
+
+        ' Wait 2 seconds without freezing the UI
+        Dim sw As New Stopwatch()
+        sw.Start()
+        Do While sw.ElapsedMilliseconds < 2000
+            Application.DoEvents()
+        Loop
+
+        ' Proceed with loading main form data
         LoadGroceryData()
         PopulateFilterComboBox()
         PopulateDisplayListBox()
         FilterByAisleRadioButton.Checked = True
         FilterComboBox.SelectedIndex = 0
         SearchTextBox.Text = ""
+
+        ' Close splash screen
+        splashScreen.Close()
+        splashScreen.Dispose()
+    End Sub
+
+    Private Sub StansGroceryForm_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If splashScreen IsNot Nothing Then
+            splashScreen.Close()
+            splashScreen.Dispose()
+        End If
     End Sub
 
     Sub LoadGroceryData()
@@ -61,12 +94,12 @@ Public Class StansGroceryForm
                 For i = 0 To food.GetUpperBound(0)
                     If Not values.Contains(food(i, 1)) Then values.Add(food(i, 1))
                 Next
-                values.Sort(Function(x, y) y.CompareTo(x)) ' Descending
+                values.Sort(Function(x, y) y.CompareTo(x))
             ElseIf FilterByCategoryRadioButton.Checked Then
                 For i = 0 To food.GetUpperBound(0)
                     If Not values.Contains(food(i, 2)) Then values.Add(food(i, 2))
                 Next
-                values.Sort() ' Alphabetical
+                values.Sort()
             End If
 
             For Each value In values
@@ -149,25 +182,48 @@ Public Class StansGroceryForm
             End If
 
             DisplayListBox.Items.Clear()
-            Dim found As Boolean = False
+            FilterComboBox.Items.Clear()
+            FilterComboBox.Items.Add("Show All")
+
+            Dim foundItems As New List(Of String)
+            Dim filterValues As New HashSet(Of String)
 
             For i = 0 To food.GetUpperBound(0)
                 If food(i, 0).IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 _
                    OrElse food(i, 1).IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 _
                    OrElse food(i, 2).IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 Then
 
-                    If Not DisplayListBox.Items.Contains(food(i, 0)) Then
+                    If Not foundItems.Contains(food(i, 0)) Then
+                        foundItems.Add(food(i, 0))
                         DisplayListBox.Items.Add(food(i, 0))
                     End If
 
-                    found = True
+                    If FilterByAisleRadioButton.Checked Then
+                        filterValues.Add(food(i, 1))
+                    ElseIf FilterByCategoryRadioButton.Checked Then
+                        filterValues.Add(food(i, 2))
+                    End If
                 End If
             Next
 
-            If found Then
-                DisplayLabel.Text = ""
+            ' Update the FilterComboBox with matched values only
+            Dim sortedValues = filterValues.ToList()
+            If FilterByAisleRadioButton.Checked Then
+                sortedValues.Sort(Function(x, y) y.CompareTo(x))
             Else
+                sortedValues.Sort()
+            End If
+
+            For Each value In sortedValues
+                FilterComboBox.Items.Add(value)
+            Next
+
+            FilterComboBox.SelectedIndex = 0
+
+            If foundItems.Count = 0 Then
                 DisplayLabel.Text = $"Sorry no matches for {searchString}"
+            Else
+                DisplayLabel.Text = ""
             End If
 
             FilterByAisleRadioButton.Checked = True
@@ -178,7 +234,7 @@ Public Class StansGroceryForm
         End Try
     End Sub
 
-    ' Menu and context handlers
+    ' Menu/context handlers
     Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
         Me.Close()
     End Sub
